@@ -4,6 +4,17 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import NetInfo from '@react-native-community/netinfo';
 import {onlineManager, focusManager} from 'react-query';
+import {DefaultTheme, Provider as PaperProvider} from 'react-native-paper';
+
+const theme = {
+  ...DefaultTheme,
+  roundness: 2,
+  colors: {
+    ...DefaultTheme.colors,
+    primary: '#3498db',
+    accent: '#f1c40f',
+  },
+};
 
 onlineManager.setEventListener(setOnline => {
   return NetInfo.addEventListener(state => {
@@ -34,11 +45,13 @@ function App() {
   }, []);
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen name="Home" component={HomeScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <PaperProvider theme={theme}>
+      <NavigationContainer>
+        <Stack.Navigator>
+          <Stack.Screen name="Home" component={HomeScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </PaperProvider>
   );
 }
 
