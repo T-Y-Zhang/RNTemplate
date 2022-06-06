@@ -1,7 +1,21 @@
 import * as React from 'react';
-import {View, Text} from 'react-native';
+import {View, Text, Platform, AppStateStatus, AppState} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import NetInfo from '@react-native-community/netinfo';
+import {onlineManager, focusManager} from 'react-query';
+
+onlineManager.setEventListener(setOnline => {
+  return NetInfo.addEventListener(state => {
+    setOnline(!!state.isConnected);
+  });
+});
+
+function onAppStateChange(status: AppStateStatus) {
+  if (Platform.OS !== 'web') {
+    focusManager.setFocused(status === 'active');
+  }
+}
 
 function HomeScreen() {
   return (
@@ -14,6 +28,11 @@ function HomeScreen() {
 const Stack = createNativeStackNavigator();
 
 function App() {
+  React.useEffect(() => {
+    const subscription = AppState.addEventListener('change', onAppStateChange);
+    return () => subscription.remove();
+  }, []);
+
   return (
     <NavigationContainer>
       <Stack.Navigator>
