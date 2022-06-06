@@ -31,7 +31,13 @@ function onAppStateChange(status: AppStateStatus) {
   }
 }
 
-const Stack = createNativeStackNavigator();
+export type RootStackParamList = {
+  Signup: undefined;
+  Signin: undefined;
+  Home: undefined;
+};
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function App() {
   React.useEffect(() => {
@@ -43,9 +49,16 @@ function App() {
     <PaperProvider theme={theme}>
       <NavigationContainer>
         <Stack.Navigator>
-          <Stack.Screen name="Home" component={HomeScreen} />
-          <Stack.Screen name="Signin" component={SigninScreen} />
           <Stack.Screen name="Signup" component={SignupScreen} />
+          <Stack.Screen name="Signin" component={SigninScreen} />
+          <Stack.Screen
+            name="Home"
+            component={HomeScreen}
+            options={{
+              gestureEnabled: false,
+              headerShown: false,
+            }}
+          />
         </Stack.Navigator>
       </NavigationContainer>
     </PaperProvider>
