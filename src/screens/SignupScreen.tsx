@@ -7,6 +7,8 @@ import * as yup from 'yup';
 import {useState} from 'react';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../App';
+import {useMutation} from 'react-query';
+import API, {setBearerToken} from '../api';
 interface ISignupInputs {
   name: string;
   email: string;
@@ -22,6 +24,20 @@ const schema = yup.object({
 type SignupScreenProps = NativeStackScreenProps<RootStackParamList, 'Signup'>;
 
 function SignupScreen(props: SignupScreenProps) {
+  const signupMuation = useMutation(
+    async data => {
+      return await API.post('signup', data);
+    },
+    {
+      onError: data => {
+        console.log(data);
+      },
+      onSuccess: response => {
+        setBearerToken(response.data?.access_token);
+        props.navigation.navigate('Home');
+      },
+    },
+  );
   const {colors} = useTheme();
   const {
     control,
@@ -36,7 +52,9 @@ function SignupScreen(props: SignupScreenProps) {
     resolver: yupResolver(schema),
   });
   const [showPasswordChar, setShowPasswordChar] = useState(false);
-  const onSubmit = data => console.log(data);
+  const onSubmit = (data: void) => {
+    signupMuation.mutate(data);
+  };
   return (
     <View style={style.container}>
       <View>
@@ -91,7 +109,10 @@ function SignupScreen(props: SignupScreenProps) {
         />
         {errors.password && <Text>{errors.password.message}</Text>}
 
-        <Button style={style.signupButton} onPress={handleSubmit(onSubmit)}>
+        <Button
+          style={style.signupButton}
+          onPress={handleSubmit(onSubmit)}
+          loading={signupMuation.isLoading}>
           Signup
         </Button>
       </View>

@@ -5,6 +5,7 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import NetInfo from '@react-native-community/netinfo';
 import {onlineManager, focusManager} from 'react-query';
 import {DefaultTheme, Provider as PaperProvider} from 'react-native-paper';
+import {QueryClient, QueryClientProvider} from 'react-query';
 import HomeScreen from './screens/HomeScreen';
 import SigninScreen from './screens/SigninScreen';
 import SignupScreen from './screens/SignupScreen';
@@ -38,6 +39,13 @@ export type RootStackParamList = {
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 0,
+    },
+  },
+});
 
 function App() {
   React.useEffect(() => {
@@ -47,20 +55,22 @@ function App() {
 
   return (
     <PaperProvider theme={theme}>
-      <NavigationContainer>
-        <Stack.Navigator>
-          <Stack.Screen name="Signup" component={SignupScreen} />
-          <Stack.Screen name="Signin" component={SigninScreen} />
-          <Stack.Screen
-            name="Home"
-            component={HomeScreen}
-            options={{
-              gestureEnabled: false,
-              headerShown: false,
-            }}
-          />
-        </Stack.Navigator>
-      </NavigationContainer>
+      <QueryClientProvider client={queryClient}>
+        <NavigationContainer>
+          <Stack.Navigator>
+            <Stack.Screen name="Signup" component={SignupScreen} />
+            <Stack.Screen name="Signin" component={SigninScreen} />
+            <Stack.Screen
+              name="Home"
+              component={HomeScreen}
+              options={{
+                gestureEnabled: false,
+                headerShown: false,
+              }}
+            />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </QueryClientProvider>
     </PaperProvider>
   );
 }

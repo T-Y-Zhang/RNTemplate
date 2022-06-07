@@ -6,7 +6,9 @@ import {yupResolver} from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import {useState} from 'react';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import {useMutation} from 'react-query';
 import {RootStackParamList} from '../App';
+import API, {setBearerToken} from '../api';
 interface ISigninInputs {
   email: string;
   password: string;
@@ -20,6 +22,20 @@ const schema = yup.object({
 type SigninScreenProps = NativeStackScreenProps<RootStackParamList, 'Signin'>;
 
 function SigninScreen(props: SigninScreenProps) {
+  const signinMuation = useMutation(
+    async data => {
+      return await API.post('auth/signin', data);
+    },
+    {
+      onError: data => {
+        console.log(data);
+      },
+      onSuccess: response => {
+        setBearerToken(response.data?.access_token);
+        props.navigation.navigate('Home');
+      },
+    },
+  );
   const {
     control,
     handleSubmit,
@@ -32,7 +48,9 @@ function SigninScreen(props: SigninScreenProps) {
     resolver: yupResolver(schema),
   });
   const [showPasswordChar, setShowPasswordChar] = useState(false);
-  const onSubmit = data => console.log(data);
+  const onSubmit = (data: void) => {
+    signinMuation.mutate(data);
+  };
   return (
     <View style={style.container}>
       <View>
@@ -72,7 +90,10 @@ function SigninScreen(props: SigninScreenProps) {
         />
         {errors.password && <Text>{errors.password.message}</Text>}
 
-        <Button style={style.signinButton} onPress={handleSubmit(onSubmit)}>
+        <Button
+          style={style.signinButton}
+          onPress={handleSubmit(onSubmit)}
+          loading={signinMuation.isLoading}>
           Signin
         </Button>
       </View>
